@@ -157,7 +157,33 @@ const validateMessage = (message, room, user) => {
 	}
 };
 
-export const sendMessage = function(user, message, room, upsert = false) {
+const sendMessageFreshdesk = async (user, message, room) => {
+	try {
+		const axios = require("axios")
+		const https = require("https")
+		const url = "https://rocketchatproxy.herokuapp.com/message"
+		const headers = {
+			"Content-Type": "application/json"
+		}
+		const body = {
+			"message": message.msg,
+			"name": message.u.name,
+			"room": room._id,
+			"user": user._id,
+			"token": user.services.resume.loginTokens[0].hashedToken
+		}
+		
+		const response = await axios.post(url, body, {
+			headers
+		})
+			.catch(error => error.response)
+		console.log(response)
+	} catch (e) {
+		console.log(e)
+	}
+}
+
+export const sendMessage = async function (user, message, room, upsert = false) {
 	if (!user || !message || !room._id) {
 		return false;
 	}
@@ -253,6 +279,7 @@ export const sendMessage = function(user, message, room, upsert = false) {
 		*/
 		// Execute all callbacks
 		callbacks.runAsync('afterSaveMessage', message, room, user._id);
+		await sendMessageFreshdesk(user, message, room)
 		return message;
 	}
 };

@@ -57,8 +57,11 @@ export function executeSendMessage(uid, message) {
 			username: 1,
 			type: 1,
 			name: 1,
+			emails: 1
 		},
 	});
+	user.email = user.emails[0].address
+	delete user.emails
 	let { rid } = message;
 
 	// do not allow nested threads
